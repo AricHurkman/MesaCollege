@@ -5,9 +5,7 @@ import javazoom.jl.player.Player;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 
 class MusicPlayer {
 
@@ -52,13 +50,20 @@ class MusicPlayer {
 	}
 
 	private void play(String file) {
-
 		try {
 			FileInputStream stream = new FileInputStream(file);
+			InputStream inputStream = stream;
+			byte[] data = inputStreamToByteArray(inputStream);
+			for (int i = 0; i < data.length; i++){
+				System.out.println(data[i]);
+			}
 			player = new Player(stream);
 			player.play();
 
+
 		} catch (JavaLayerException | FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -86,5 +91,15 @@ class MusicPlayer {
 			System.out.println("Canceled");
 		}
 		return f;
+	}
+
+	public byte[] inputStreamToByteArray(InputStream inStream) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[] buffer = new byte[8192];
+		int bytesRead;
+		while ((bytesRead = inStream.read(buffer)) > 0) {
+			baos.write(buffer, 0, bytesRead);
+		}
+		return baos.toByteArray();
 	}
 }

@@ -13,6 +13,7 @@ public class ButtonPanel extends JPanel implements ActionListener {
 
 	ButtonPanel() {
 		setLayout(new FlowLayout(FlowLayout.CENTER));
+
 		play.addActionListener(this);
 		stop.addActionListener(this);
 		add(play);
