@@ -1,3 +1,5 @@
+package MusicMain;
+
 public class Clamp {
 
 	public static int clamp (int v, int min, int max){
