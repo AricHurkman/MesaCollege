@@ -1,6 +1,13 @@
 package MusicMain;
 
+/**
+ * @author Aric Hurkman
+ * Date 11.21.2019
+ *
+ * PlayerListener interface for clicked actions for play and stop
+ */
 public interface PlayerListener {
-	public void clickedPlay();
-	public void clickedStop();
+	void clickedPlay();
+
+	void clickedStop();
 }

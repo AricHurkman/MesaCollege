@@ -5,8 +5,22 @@ import javazoom.jl.player.Player;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
+/**
+ * Music Player
+ *
+ * @author Aric Hurkman
+ * date: 11.21.2019
+ * Using Javazoom Decoder for MP3 Files
+ * <p>
+ * Sets File to be played and plays and stops music
+ * Creates the FileInputStream
+ * <p>
+ * Runs on its own thread
+ */
 class MusicPlayer {
 
 	private Player player;
@@ -14,6 +28,13 @@ class MusicPlayer {
 	private boolean playing = false;
 	private Thread thread;
 
+	FileInputStream stream;
+
+	/**
+	 * RunPlay invoked from ButtonPanel via the PlayListener interface
+	 * Checks if already playing and if the thread is alive and not null
+	 * if null starts new thread and sets playing to true
+	 */
 	void RunPlay() {
 		if (!playing) {
 			if (thread == null) {
@@ -21,11 +42,9 @@ class MusicPlayer {
 					if (musicFile == null) {
 						musicFile = openFile().getAbsolutePath();
 						play(musicFile);
-
 					} else {
 						play(musicFile);
 					}
-
 				});
 				this.playing = true;
 				thread.start();
@@ -34,10 +53,8 @@ class MusicPlayer {
 					if (musicFile == null) {
 						musicFile = openFile().getAbsolutePath();
 						play(musicFile);
-
 					} else {
 						play(musicFile);
-
 					}
 				});
 				this.playing = true;
@@ -49,30 +66,35 @@ class MusicPlayer {
 		}
 	}
 
+	/**
+	 * Sets the FileInputStream
+	 * Set Player and Plays Mp3
+	 * @param file
+	 */
 	private void play(String file) {
 		try {
-			FileInputStream stream = new FileInputStream(file);
-			InputStream inputStream = stream;
-			byte[] data = inputStreamToByteArray(inputStream);
-			for (int i = 0; i < data.length; i++){
-				System.out.println(data[i]);
-			}
-			player = new Player(stream);
-			player.play();
+			stream = new FileInputStream(file);
+			player = new Player(stream); // ----> Javazoom api
+			player.play();// ----> Javazoom api
 
 
 		} catch (JavaLayerException | FileNotFoundException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * Stops player
+	 * joins thread
+	 * sets playing to false
+	 */
 	void stop() {
 		if (player != null) {
-			player.close();
+			player.close(); // ----> Javazoom api
 			try {
-				if (thread.isAlive()) thread.join();
+				if (thread.isAlive()) {
+					thread.join();
+				}
 			} catch (InterruptedException ex) {
 				ex.printStackTrace();
 			}
@@ -80,10 +102,17 @@ class MusicPlayer {
 		}
 	}
 
+	/**
+	 * Opens a File Chooser and returns the File to be called in Play() and Load()
+	 *
+	 * @return File
+	 */
 	private File openFile() {
 		JFileChooser j = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 		File f = null;
 		int r = j.showOpenDialog(null);
+
+
 		if (r == JFileChooser.APPROVE_OPTION) {
 			musicFile = j.getSelectedFile().getAbsolutePath();
 			f = new File(musicFile);
@@ -93,13 +122,5 @@ class MusicPlayer {
 		return f;
 	}
 
-	public byte[] inputStreamToByteArray(InputStream inStream) throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		byte[] buffer = new byte[8192];
-		int bytesRead;
-		while ((bytesRead = inStream.read(buffer)) > 0) {
-			baos.write(buffer, 0, bytesRead);
-		}
-		return baos.toByteArray();
-	}
+
 }

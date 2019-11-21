@@ -2,8 +2,14 @@ package MusicMain;
 
 import javax.swing.*;
 
+/**
+ * App
+ * @author Aric Hurkman
+ * date: 11.19.2019
+ *
+ * Main
+ */
 public class App {
-
 
 	public static void main(String[] args) {
 		new App();
