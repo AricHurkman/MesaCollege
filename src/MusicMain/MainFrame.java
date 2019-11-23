@@ -15,7 +15,6 @@ class MainFrame extends JFrame implements Runnable {
 	private MusicPlayer musicPlayer = new MusicPlayer();
 
 	CanvasVisualizer musicVisualizer = new CanvasVisualizer();
-	private BuildMusicData musicData = new BuildMusicData();
 	private Thread mainThread;
 	private Thread startThread;
 	private boolean running;
@@ -34,6 +33,7 @@ class MainFrame extends JFrame implements Runnable {
 		setMaximumSize(d);
 		setMinimumSize(d);
 		setLocationRelativeTo(null);
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		ButtonPanel buttonPanel = new ButtonPanel();
 		add(buttonPanel, BorderLayout.SOUTH);
@@ -105,7 +105,7 @@ class MainFrame extends JFrame implements Runnable {
 
 				delta_time--;
 			}
-			if (running) musicVisualizer.Render(); // Invoke
+			if (running) musicVisualizer.Render(musicPlayer); // Invoke
 			//frames++;
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;

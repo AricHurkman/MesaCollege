@@ -4,11 +4,9 @@ import java.awt.*;
 public abstract class abstractDraw {
 
 	protected int x, y;
-	protected ID id;
 	protected float velX, velY;
 
-	public abstractDraw(int x, int y, ID id){
-		this.id = id;
+	public abstractDraw(int x, int y){
 		this.x = x;
 		this.y = y;
 	}
@@ -21,8 +19,6 @@ public abstract class abstractDraw {
 	public void SetY(int y){this.y = y;}
 	public int GetY(){return y;}
 
-	public void setId(ID id) {this.id = id;}
-	public ID getId() {return id;}
 
 	public void setVelX(int velX) {this.velX = velX;}
 

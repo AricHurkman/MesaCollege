@@ -6,7 +6,8 @@ import java.awt.image.BufferStrategy;
 public class CanvasVisualizer extends Canvas {
 
 
-	public void Render(){
+	DrawVisualizer visualizer;
+	public void Render(MusicPlayer player){
 		BufferStrategy bs = this.getBufferStrategy();
 		if(bs == null){
 			this.createBufferStrategy(3);
@@ -17,10 +18,14 @@ public class CanvasVisualizer extends Canvas {
 		g.fillRect(10,10, 580, 600);
 		g.dispose();
 		bs.show();
-		new DrawVisualizer(0,0,ID.One);
+		DrawCircle(g);
+
 
 
 	}
 
+	private void DrawCircle(Graphics g){
+
+	}
 
 }
