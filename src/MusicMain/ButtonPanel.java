@@ -18,7 +18,6 @@ public class ButtonPanel extends JPanel implements ActionListener {
 	private JButton play = new JButton("", new ImageIcon("icons/play.png"));
 	//Stop Button, Icon is from https://www.flaticon.com/free-icon/ resized to 50x50 pixels
 	private JButton stop = new JButton("", new ImageIcon("icons/stop.png"));
-
 	private PlayerListener playerListener;
 
 	/**
@@ -31,6 +30,7 @@ public class ButtonPanel extends JPanel implements ActionListener {
 		stop.addActionListener(this);
 		add(play);
 		add(stop);
+
 	}
 
 	/**
@@ -57,6 +57,7 @@ public class ButtonPanel extends JPanel implements ActionListener {
 			}
 		} else if (clicked == stop) {
 
+			System.out.println("Pressed Stop");;
 			if (playerListener != null) {
 				playerListener.clickedStop();
 			}

@@ -6,7 +6,7 @@ import java.awt.*;
 
 /**
  * @author Aric Hurkman
- *
+ * <p>
  * MainFrame.js is the main Jframe Sets the background frame and adds all subframes to this frame
  * Using Δt in Runnable thread for rendering smooth graphics.
  */
@@ -16,7 +16,6 @@ class MainFrame extends JFrame implements Runnable {
 
 	CanvasVisualizer musicVisualizer = new CanvasVisualizer();
 	private Thread mainThread;
-	private Thread startThread;
 	private boolean running;
 
 	/**
@@ -44,7 +43,6 @@ class MainFrame extends JFrame implements Runnable {
 
 			public void clickedPlay() {
 				musicPlayer.RunPlay();
-
 			}
 
 			public void clickedStop() {
@@ -69,7 +67,7 @@ class MainFrame extends JFrame implements Runnable {
 	 * synchronized Stop
 	 * Joins mainThread and sets running to false
 	 */
-	private synchronized void stop() {
+	public synchronized void stop() {
 		try {
 			mainThread.join();
 			running = false;
@@ -103,9 +101,10 @@ class MainFrame extends JFrame implements Runnable {
 			lastTime = timeSinceStart;
 			while (delta_time >= 1) {
 
+				musicVisualizer.Render(musicPlayer); // Invoke
 				delta_time--;
 			}
-			if (running) musicVisualizer.Render(musicPlayer); // Invoke
+
 			//frames++;
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;

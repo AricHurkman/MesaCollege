@@ -2,13 +2,10 @@ package MusicMain;
 
 import javazoom.jl.converter.Converter;
 import javazoom.jl.decoder.JavaLayerException;
-import javazoom.jl.player.Player;
-import javazoom.jl.player.advanced.AdvancedPlayer;
 
 import javax.sound.sampled.*;
 import javax.sound.sampled.AudioFormat.Encoding;
 import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.io.IOException;
 
@@ -27,12 +24,9 @@ import java.io.IOException;
 class MusicPlayer {
 
 	private static final double WAVEFORM_HEIGHT_COEFFICIENT = 1.3;
-	private AdvancedPlayer advancedPlayer;
-	private Player player;
-	private String musicFile;
-	private boolean playing = false;
+	boolean playing = false;
 	private Thread thread;
-	public float[] musicPoints;
+	float[] musicPoints;
 
 	/**
 	 * RunPlay invoked from ButtonPanel via the PlayListener interface
@@ -40,9 +34,8 @@ class MusicPlayer {
 	 * if null starts new thread and sets playing to true
 	 */
 	void RunPlay() {
-		if (!playing) {
+		if (!this.playing) {
 			play();
-			this.playing = true;
 		}
 	}
 
@@ -52,29 +45,42 @@ class MusicPlayer {
 	 */
 	private void play() {
 
+		if (thread != null) if (thread.isAlive()) {
+			System.out.println("Error Thread is Alive Already");
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		thread = new Thread(() -> {
+			System.out.println("Starting Music Player Thread");
 			final int BUFFER_SIZE = 128000;
-			File f = openFile();
-			File temp = new File(f.getPath().split("\\.")[0].concat(".wav"));
-
+			String fileString = openFile();
+			File file = null;
+			if(fileString.equals("")){
+				System.out.println("File Blank");
+				return;
+			}else {
+				file = new File(fileString);
+			}
+			File temp = new File(file.getPath().split("\\.")[0].concat(".wav"));
 			try {
 				Converter converter = new Converter();
-				converter.convert(f.getAbsolutePath(), temp.getAbsolutePath());
+				converter.convert(file.getAbsolutePath(), temp.getAbsolutePath());
 
 				AudioInputStream input = AudioSystem.getAudioInputStream(temp);
 
-				musicPoints = processAmplitudes(getWavAmplitudes(temp));
 
 
-				temp.delete();
 				AudioFormat baseFormat = input.getFormat();
 				DataLine.Info info = new DataLine.Info(SourceDataLine.class, baseFormat);
 				SourceDataLine sourceLine = (SourceDataLine) AudioSystem.getLine(info);
 				sourceLine.open(baseFormat);
-
-
 				sourceLine.start();
-
+				musicPoints = processAmplitudes(getWavAmplitudes(temp));
+				temp.delete();//Remove temp file
+				this.playing = true;
 				int nBytesRead = 0;
 				byte[] abData = new byte[BUFFER_SIZE];
 				while (nBytesRead != -1) {
@@ -86,10 +92,20 @@ class MusicPlayer {
 					if (nBytesRead >= 0) {
 						@SuppressWarnings("unused") int nBytesWritten = sourceLine.write(abData, 0, nBytesRead);
 					}
+
+
+					if (!this.playing) {
+						sourceLine.stop();
+						break;
+					}
 				}
 
+				sourceLine.stop();
 				sourceLine.drain();
 				sourceLine.close();
+				musicPoints = new float[1];
+				musicPoints[0] = 0;
+				this.playing = false;
 
 
 			} catch (JavaLayerException | UnsupportedAudioFileException | IOException | LineUnavailableException e) {
@@ -98,7 +114,15 @@ class MusicPlayer {
 
 		});
 		thread.start();
+	}
 
+	/**
+	 * Stops player
+	 * joins thread
+	 * sets playing to false
+	 */
+	void stop() {
+		this.playing = false;
 	}
 
 	private int[] getWavAmplitudes(File file) {
@@ -135,7 +159,8 @@ class MusicPlayer {
 				int arrayCellValue = 0;
 
 				//Read all the available data on chunks
-				while (pcmDecodedInput.read(buffer, 0, BUFFER_SIZE) > 0)
+				while (pcmDecodedInput.read(buffer, 0, BUFFER_SIZE) > 0 )
+
 					for (int i = 0; i < buffer.length - 1; i += 2) {
 
 						//Calculate the value
@@ -174,7 +199,7 @@ class MusicPlayer {
 		System.out.println("Processing WAV amplitudes");
 
 		//The width of the resulting waveform panel
-		int width = 10000;
+		int width = 1000;
 		float[] waveData = new float[width];
 		int samplesPerPixel = sourcePcmData.length / width;
 
@@ -200,41 +225,23 @@ class MusicPlayer {
 	}
 
 	/**
-	 * Stops player
-	 * joins thread
-	 * sets playing to false
-	 */
-	void stop() {
-		if (player != null) {
-			player.close(); // ----> Javazoom api
-			try {
-				if (thread.isAlive()) {
-					thread.join();
-				}
-			} catch (InterruptedException ex) {
-				ex.printStackTrace();
-			}
-			this.playing = false;
-		}
-	}
-
-	/**
 	 * Opens a File Chooser and returns the File to be called in Play() and Load()
 	 *
 	 * @return File
 	 */
-	private File openFile() {
-		JFileChooser j = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-		File f = null;
-		int r = j.showOpenDialog(null);
+	JFileChooser chooser = new JFileChooser();
+	private String openFile() {
+		System.out.println("Trying to open file");
+		chooser.getFileSystemView();
+		String file = "";
+		int r = chooser.showOpenDialog(null);
 		if (r == JFileChooser.APPROVE_OPTION) {
-			musicFile = j.getSelectedFile().getAbsolutePath();
-			f = new File(musicFile);
+			file = chooser.getSelectedFile().getAbsolutePath();
+
+			System.out.println("File: " + file);
 		} else {
 			System.out.println("Canceled");
 		}
-		return f;
+		return file;
 	}
-
-
 }
