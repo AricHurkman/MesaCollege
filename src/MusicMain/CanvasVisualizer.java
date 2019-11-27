@@ -7,8 +7,8 @@ import java.util.Random;
 public class CanvasVisualizer extends Canvas {
 
 
-	public static int circleCount = 30;
 
+	int circleCount = 30;
 	int width = 580;
 	int height = 600;
 	int index = 0;
@@ -17,7 +17,7 @@ public class CanvasVisualizer extends Canvas {
 	int count = maxCount;
 	Color color;
 
-	public void Render(MusicPlayer player) {
+	public void Render(MusicPlayer player, MainFrame.VisType visType) {
 
 		if (player == null) return;
 		BufferStrategy bs = this.getBufferStrategy();
@@ -29,8 +29,17 @@ public class CanvasVisualizer extends Canvas {
 		g.setColor(Color.BLACK);
 		g.fillRect(10, 10, width, height);
 		if (player.playing) {
-			drawSingleBandCircle(30, 50,30, 550, g, player);
-			//drawThinkBandCircle(100, 60, 10, 200, g, player);
+			switch (visType){
+
+				case ThinCircle:
+					drawSingleBandCircle(30, 50,30, 550, g, player);
+					break;
+				case ThickCircle:
+					drawThinkBandCircle(100, 60, 10, 200, g, player);
+					break;
+			}
+
+
 		} g.dispose();
 		bs.show();
 	}
@@ -145,5 +154,10 @@ public class CanvasVisualizer extends Canvas {
 
 
 	}
+
+
+
+
+
 
 }

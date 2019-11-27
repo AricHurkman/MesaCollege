@@ -12,9 +12,17 @@ import java.awt.*;
  */
 class MainFrame extends JFrame implements Runnable {
 
+	enum VisType {
+		ThinCircle,
+		ThickCircle
+	}
+
+	VisType visType = VisType.ThinCircle;
+
 	private MusicPlayer musicPlayer = new MusicPlayer();
 
 	CanvasVisualizer musicVisualizer = new CanvasVisualizer();
+	TopMenu topMenu;
 	private Thread mainThread;
 	private boolean running;
 
@@ -35,8 +43,11 @@ class MainFrame extends JFrame implements Runnable {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		ButtonPanel buttonPanel = new ButtonPanel();
+		topMenu = new TopMenu(this);
+		add(topMenu, BorderLayout.NORTH);
 		add(buttonPanel, BorderLayout.SOUTH);
 		add(musicVisualizer, BorderLayout.CENTER);
+
 
 		//Button Panel set interface
 		buttonPanel.setPlayerListener(new PlayerListener() {
@@ -101,7 +112,7 @@ class MainFrame extends JFrame implements Runnable {
 			lastTime = timeSinceStart;
 			while (delta_time >= 1) {
 
-				musicVisualizer.Render(musicPlayer); // Invoke
+				musicVisualizer.Render(musicPlayer, visType ); // Invoke
 				delta_time--;
 			}
 
