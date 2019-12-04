@@ -7,7 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="jl-1.0.1" level="project" />
     <orderEntry type="library" name="jl-1.0.1 (2)" level="project" />
+    <orderEntry type="library" name="src" level="project" />
   </component>
 </module>

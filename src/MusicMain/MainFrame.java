@@ -12,14 +12,16 @@ import java.awt.*;
  */
 class MainFrame extends JFrame implements Runnable {
 
+
 	enum VisType {
-		ThinCircle,
-		ThickCircle
+		ThinCircle, ThickCircle, Lines, Tree
 	}
 
 	VisType visType = VisType.ThinCircle;
 
-	private MusicPlayer musicPlayer = new MusicPlayer();
+
+
+	 MusicPlayer musicPlayer = new MusicPlayer();
 
 	CanvasVisualizer musicVisualizer = new CanvasVisualizer();
 	TopMenu topMenu;
@@ -112,7 +114,7 @@ class MainFrame extends JFrame implements Runnable {
 			lastTime = timeSinceStart;
 			while (delta_time >= 1) {
 
-				musicVisualizer.Render(musicPlayer, visType ); // Invoke
+				musicVisualizer.Render(musicPlayer, visType);
 				delta_time--;
 			}
 
