@@ -76,19 +76,13 @@ public class Turtle extends SimpleTurtle {
 
 		this.setColor(c);
 		int turnAngle = 360 / sides;
-		//For loop for shape count to be created
-		for (int i = 0; i < count; i++) {
 
-			// if iteration is larger than 0 then we add offset value to current position else just move to x and y values.
+		for (int i = 0; i < count; i++) {
 			if (i > 0) {
-				x = this.getXPos() + offsetX; //Gets the current Position of x axis and adds offset value.
-				y = this.getYPos() + offsetY; //Gets the current Position of y axis and adds offset value.
+				x = x + offsetX;
+				y = y + offsetY;
 				noMarkMove(x, y);
 			} else noMarkMove(x, y);
-
-			System.out.println("x: " + x + " y: " + y);
-
-			//Makes the shape based off of sides, size and turn angle values
 			for (int j = sides; j >= 0; j--) {
 				this.forward(size);
 				this.turn(turnAngle);

@@ -9,7 +9,8 @@ import javax.swing.*;
  *
  * Main
  */
-public class App {
+public class App extends Test {
+
 
 	public static void main(String[] args) {
 		new App();
@@ -21,6 +22,9 @@ public class App {
 				new MainFrame();
 			}
 		});
+
+
 	}
+
 
 }

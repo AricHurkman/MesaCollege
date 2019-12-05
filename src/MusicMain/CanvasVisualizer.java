@@ -3,48 +3,61 @@ package MusicMain;
 import MusicMain.bookClasses.Turtle;
 import MusicMain.bookClasses.World;
 
+import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferStrategy;
 import java.util.Random;
 
-public class CanvasVisualizer extends Canvas {
+public class CanvasVisualizer {
+	private JFrame frame;
+	private int width = 600;
+	private int height = 600;
+	private int index = 0;
 
+	World w;
+	Random r = new Random();
 
-	int width = 600;
-	int height = 600;
-	int index = 0;
-	//Circle
-	int circleCount = 30;
+	Turtle thinCircle;
+	Turtle[] thickCircles = new Turtle[10];
+	Turtle[] Lines = new Turtle[width];
+	Turtle[] trees = new Turtle[5];
+
+	int treeIndex = 0;
+
+	float scaleMax = 0.0f;
+	float scaleMin = 10.0f;
 	//Lines
 	int maxPixel = 2;
 	//Color
-	int maxCount = 10;
-	int count = maxCount;
+	private int maxCount = 10;
+	private int count = maxCount;
 
+	private MainFrame.VisType visType;
 
-	public void Render(MusicPlayer player, MainFrame.VisType visType) {
+	private boolean runningTree = false;
 
+	public void setFrame(JFrame frame) {
+		this.frame = frame;
+	}
+
+	void Render(MusicPlayer player, MainFrame.VisType visType) {
+
+		this.visType = visType;
 		if (player == null) return;
-		BufferStrategy bs = this.getBufferStrategy();
-		if (bs == null) {
-			this.createBufferStrategy(3);
-			return;
+		if (w == null) {
+			w = new World(width, height, frame);
 		}
 
-		Graphics g = bs.getDrawGraphics();
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, width, height);
 		if (player.playing) {
-			switch (visType) {
+			switch (this.visType) {
 
 				case ThinCircle:
-					drawSingleBandCircle(30, 50, 30, 550, g, player);
+					drawSingleBandCircle(player);
 					break;
 				case ThickCircle:
-					drawThinkBandCircle(100, 60, 10, 200, g, player);
+					drawThinkBandCircle(player);
 					break;
 				case Lines:
-					lines(g, player);
+					lines(player);
 					break;
 				case Tree:
 					tree(player);
@@ -53,79 +66,92 @@ public class CanvasVisualizer extends Canvas {
 
 
 		}
-		g.dispose();
-		bs.show();
 	}
 
-	private void drawSingleBandCircle(int x, int y, int min, int max, Graphics g, MusicPlayer player) {
 
-		//System.out.println(count);
-		g.setColor(setRandomColor());
+	private void drawSingleBandCircle(MusicPlayer player) {
+		if (thinCircle == null) {
+			thinCircle = new Turtle(width / 2, height / 2, w);
+			thinCircle.hide();
+		}
 
-		for (int i = 0; i < circleCount; i++) {
+		if (player.musicPoints != null) {
+			if (index < player.musicPoints.length - 1) {
+				scaleMax = Math.max(player.musicPoints[index], scaleMax);
+				scaleMin = Math.min(player.musicPoints[index], scaleMin);
+				float scaleFactor = (scaleMax - scaleMin);
+				//System.out.println("Scale Factor: " + scaleFactor);
+				int x = (int) (((player.musicPoints[index] / scaleFactor) * width / 100));
+				int y = (int) (((player.musicPoints[index] / scaleFactor) * height / 100));
+				//System.out.println("x: " + x + " y: " + y);
+				int size = (int) (scaleFactor * r.nextInt(70));
+				//System.out.println("Size: " + size);
+				thinCircle.drawShapes(1, size, 60, thinCircle.getXPos() + x, thinCircle.getYPos() + y, 0, 0, setRandomColor());
+
+			}
+			if (index >= player.musicPoints.length -1) {
+				index = 0;
+			} else {
+				index++;
+			}
+		}
+	}
+
+	private void drawThinkBandCircle(MusicPlayer player) {
+
+		for (int i = 0; i < thickCircles.length; i++) {
+			if (thickCircles[i] == null) {
+				thickCircles[i] = new Turtle(width / 2, height / 2, w);
+				thickCircles[i].hide();
+			}
+		}
+		for (int i = 0; i < thickCircles.length; i++) {
 			if (player.musicPoints != null) {
+				if (index < player.musicPoints.length - 1) {
+					scaleMax = Math.max(player.musicPoints[index], scaleMax);
+					scaleMin = Math.min(player.musicPoints[index], scaleMin);
+					float scaleFactor = (scaleMax - scaleMin);
+					//System.out.println("Scale Factor: " + scaleFactor);
+					int x = (int) (((player.musicPoints[index] / scaleFactor) * width / 100));
+					int y = (int) (((player.musicPoints[index] / scaleFactor) * height / 100));
+					//System.out.println("x: " + x + " y: " + y);
+					int size = (int) (scaleFactor * r.nextInt(70));
+					//System.out.println("Size: " + size);
+					thickCircles[i].drawShapes(5, size, 60, thickCircles[i].getXPos() + x, thickCircles[i].getYPos() + y, 0, 0, setRandomColor());
+				}
 
-				int w = 0;
-				int h = 0;
-				if (index < player.musicPoints.length) {
-					w = (int) ((width / player.musicPoints[index]) / 100) * 2 + (i / 2);
-					h = (int) ((height / player.musicPoints[index]) / 100) * 2 + (i / 2);
-					g.drawOval(30, 50, Clamp.clamp(w, min, max), Clamp.clamp(h, min, max / 2));
-				}
-				if (index >= player.musicPoints.length) {
-					index = 0;
-				} else {
-					index++;
-				}
 			}
 
 		}
-
-
-	}
-
-	private void drawThinkBandCircle(int x, int y, int min, int max, Graphics g, MusicPlayer player) {
-		//System.out.println(count);
-		g.setColor(setRandomColor());
-
-		for (int i = 0; i < circleCount; i++) {
-			if (player.musicPoints != null) {
-
-				int w = 0;
-				int h = 0;
-				if (index < player.musicPoints.length) {
-					w = (int) ((width / player.musicPoints[index]) / 100) * 2 + (i / 2);
-					h = (int) ((height / player.musicPoints[index]) / 100) * 2 + (i / 2);
-					g.drawOval(x, y, Clamp.clamp(w, min, max), Clamp.clamp(h, min, max));
-				}
-
+		if (player.musicPoints != null) {
+			if (index >= player.musicPoints.length) {
+				index = 0;
+			} else {
+				index++;
 			}
-
 		}
-		if (index >= player.musicPoints.length) {
-			index = 0;
-		} else {
-			index++;
-		}
-
-
 	}
 
 
-	private void lines(Graphics g, MusicPlayer player) {
-		float scaleMax = 0.0f;
-		float scaleMin = 10.0f;
-		g.setColor(setRandomColor());
-		for (int i = 0; i < 1000; i++) {
+	private void lines(MusicPlayer player) {
+		for (int i = 0; i < Lines.length; i++) {
+			if (Lines[i] == null) {
+				Lines[i] = new Turtle(0, height - 40, w);
+				Lines[i].hide();
+				Lines[i].setPenColor(Color.red);
+			}
+		}
+
+		for (int i = 0; i < Lines.length; i++) {
 			if (index < player.musicPoints.length) {
 				scaleMax = Math.max(player.musicPoints[index], scaleMax);
 				scaleMin = Math.min(player.musicPoints[index], scaleMin);
 				float scaleFactor = scaleMax - scaleMin;
 				float value = (player.musicPoints[index] / scaleFactor) * height / 6;
-				float x = ((index * value) / 360) + i;
-				g.drawLine(300, 200, (int) x, (int) -value + i);
-				g.drawLine(300, 200, (int) x, (int) value + i);
-
+				Lines[i].penUp();
+				Lines[i].moveTo(i, height - 40);
+				Lines[i].penDown();
+				Lines[i].forward((int) value);
 			}
 			if (index >= player.musicPoints.length) {
 				index = 0;
@@ -134,52 +160,61 @@ public class CanvasVisualizer extends Canvas {
 			}
 
 		}
-		g.dispose();
 
 
 	}
 
 
-	World w;
-	Turtle t;
-	Random r = new Random();
-
 	private void tree(MusicPlayer player) {
-		if (w == null) {
-			w = new World(400, 400);
 
-		}
 
-		if (t == null) {
-			t = new Turtle(width / 2, height - 40, w);
-			t.hide();
-			t.setPenColor(Color.GREEN);
-		}
-
-		for (int i = 0; i < 10; i++)
-			if (index < player.musicPoints.length) {
-				float point = player.musicPoints[index] * 100;
-
-				int pos = r.nextInt(2);
-				if (pos == 0) {
-					t.moveTo(t.getXPos() + 2, t.getYPos());
-				} else {
-					t.moveTo(t.getXPos() - 2, t.getYPos());
-				}
-
-				Branch(t, point, 0, 10);
-
+		for (int i = 0; i < trees.length; i++) {
+			if (trees[i] == null) {
+				trees[i] = new Turtle(width / 2, height - 40, w);
+				trees[i].hide();
+				trees[i].setPenColor(Color.GREEN);
 			}
-		if (index >= player.musicPoints.length) {
-			index = 0;
-		} else {
-			index++;
+
+
 		}
+
+		for (treeIndex = 0; treeIndex < trees.length; treeIndex++) {
+			float point = player.musicPoints[index] * 100;
+
+			if (trees[treeIndex] != null) {
+				int randDir = r.nextInt(2);
+				int randPos = r.nextInt(60);
+
+				trees[treeIndex].penUp();
+				if (randDir == 0) {
+
+					trees[treeIndex].moveTo(trees[treeIndex].getXPos() + randPos, trees[treeIndex].getYPos());
+				} else {
+					trees[treeIndex].moveTo(trees[treeIndex].getXPos() - randPos, trees[treeIndex].getYPos());
+				}
+				trees[treeIndex].penDown();
+				Branch(trees[treeIndex], point, 0, 10);
+			}
+			if (index >= player.musicPoints.length - 1) {
+				index = 0;
+			} else {
+				index++;
+			}
+		}
+
 
 	}
 
 	private void Branch(Turtle t, double x1, float a, int runs) {
-		if (runs <= 0) return;
+		if (runs <= 0) {
+
+			return;
+		} else if (this.visType != MainFrame.VisType.Tree) {
+
+			t.clearPath();
+			return;
+
+		}
 		double x2 = x1 + (Math.cos(Math.toRadians(90)));
 		t.forward((int) x2);
 		t.turn(a);

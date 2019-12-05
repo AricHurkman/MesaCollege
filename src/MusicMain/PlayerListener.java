@@ -7,6 +7,8 @@ package MusicMain;
  * PlayerListener interface for clicked actions for play and stop
  */
 public interface PlayerListener {
+
+
 	void clickedPlay();
 
 	void clickedStop();

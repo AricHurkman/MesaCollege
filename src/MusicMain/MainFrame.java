@@ -10,7 +10,7 @@ import java.awt.*;
  * MainFrame.js is the main Jframe Sets the background frame and adds all subframes to this frame
  * Using Δt in Runnable thread for rendering smooth graphics.
  */
-class MainFrame extends JFrame implements Runnable {
+class MainFrame implements Runnable {
 
 
 	enum VisType {
@@ -20,8 +20,9 @@ class MainFrame extends JFrame implements Runnable {
 	VisType visType = VisType.ThinCircle;
 
 
+	JFrame frame = new JFrame();
 
-	 MusicPlayer musicPlayer = new MusicPlayer();
+	MusicPlayer musicPlayer = new MusicPlayer();
 
 	CanvasVisualizer musicVisualizer = new CanvasVisualizer();
 	TopMenu topMenu;
@@ -34,23 +35,21 @@ class MainFrame extends JFrame implements Runnable {
 	 * Anonymous PlayListener
 	 */
 	MainFrame() {
-		super("Music Player");
-		setLayout(new BorderLayout());
-		Dimension d = new Dimension(600, 500);
-		setSize(d);
+		frame.setTitle("Music Player");
+		frame.setLayout(new BorderLayout());
+		Dimension d = new Dimension(600, 600);
+		frame.setSize(d);
 
-		setMaximumSize(d);
-		setMinimumSize(d);
-		setLocationRelativeTo(null);
+		frame.setMaximumSize(d);
+		frame.setMinimumSize(d);
+		frame.setLocationRelativeTo(null);
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		ButtonPanel buttonPanel = new ButtonPanel();
 		topMenu = new TopMenu(this);
-		add(topMenu, BorderLayout.NORTH);
-		add(buttonPanel, BorderLayout.SOUTH);
-		add(musicVisualizer, BorderLayout.CENTER);
-
-
+		frame.add(topMenu, BorderLayout.NORTH);
+		frame.add(buttonPanel, BorderLayout.SOUTH);
+		musicVisualizer.setFrame(frame);
 		//Button Panel set interface
 		buttonPanel.setPlayerListener(new PlayerListener() {
 
@@ -62,7 +61,8 @@ class MainFrame extends JFrame implements Runnable {
 				musicPlayer.stop();
 			}
 		});
-		setVisible(true);
+		frame.setVisible(true);
+		frame.pack();
 		start();
 	}
 
@@ -103,10 +103,11 @@ class MainFrame extends JFrame implements Runnable {
 		 *
 		 */
 		long lastTime = System.nanoTime();
-		final double nanoSeconds = 16666666.6667;
+		double amountOfTicks = 120;
+		final double nanoSeconds = 1000000000 / amountOfTicks;
 		double delta_time = 0;
 		long timer = System.currentTimeMillis();
-		//int frames = 0;
+		int frames = 0;
 		while (running) {
 
 			long timeSinceStart = System.nanoTime();
@@ -114,16 +115,17 @@ class MainFrame extends JFrame implements Runnable {
 			lastTime = timeSinceStart;
 			while (delta_time >= 1) {
 
+				frames++;
 				musicVisualizer.Render(musicPlayer, visType);
 				delta_time--;
 			}
 
-			//frames++;
+
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
 
 				//System.out.println("FPS: " + frames);
-				//frames = 0;
+				frames = 0;
 			}
 
 

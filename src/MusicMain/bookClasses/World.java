@@ -85,13 +85,12 @@ public class World extends JComponent implements ModelDisplay {
 		initWorld(true);
 	}
 
-	public World(int w, int h, JFrame frame) {
-		width = w;
-		height = h;
 
-		// set up the world and make it visible
-		initWorld(true);
+	public World(int w, int h, JFrame frame) {
+
+		initWorld(frame);
 	}
+
 
 	///////////////// methods ///////////////////////////
 
@@ -124,6 +123,28 @@ public class World extends JComponent implements ModelDisplay {
 
 		// show this world
 		frame.setVisible(visibleFlag);
+	}
+
+	private void initWorld(JFrame frame) {
+		// set the preferred size
+		this.setPreferredSize(new Dimension(width, height));
+
+		// create the background picture
+		picture = new Picture(width, height);
+		Pixel p = null;
+		for (int y = 0; y < picture.getHeight(); y++) {
+			for (int x = 0; x < picture.getWidth(); x++) {
+				p = picture.getPixel(x, y);
+				p.setColor(Color.black);
+			}
+		}
+
+
+		// add this panel to the frame
+		frame.add(this);
+		frame.pack();
+		frame.setVisible(true);
+
 	}
 
 
@@ -172,12 +193,20 @@ public class World extends JComponent implements ModelDisplay {
 		// draw the background image
 		g.drawImage(picture.getImage(), 0, 0, null);
 
-		// loop drawing each turtle on the background image
-		Iterator iterator = turtleList.iterator();
-		while (iterator.hasNext()) {
-			turtle = (Turtle) iterator.next();
-			turtle.paintComponent(g);
+		try {
+			// loop drawing each turtle on the background image
+			if (turtleList.size() > 0) {
+				Iterator iterator = turtleList.iterator();
+				while (iterator.hasNext()) {
+
+					turtle = (Turtle) iterator.next();
+					turtle.paintComponent(g);
+				}
+			}
+		}catch (RuntimeException e){
+
 		}
+
 	}
 
 	/**

@@ -75,7 +75,7 @@ class MusicPlayer {
 		}
 		thread = new Thread(() -> {
 			System.out.println("Starting Music Player Thread");
-			final int BUFFER_SIZE = 128000;
+
 			String fileString = openFile();
 			File file = null;
 			if (fileString.equals("")) {
@@ -91,14 +91,14 @@ class MusicPlayer {
 
 
 				AudioInputStream input = AudioSystem.getAudioInputStream(temp);
-
-
 				AudioFormat baseFormat = input.getFormat();
+
 				DataLine.Info info = new DataLine.Info(SourceDataLine.class, baseFormat);
 				SourceDataLine sourceLine = (SourceDataLine) AudioSystem.getLine(info);
+				final int BUFFER_SIZE = sourceLine.getBufferSize();
 				sourceLine.open(baseFormat);
 				sourceLine.start();
-				musicPoints = processAmplitudes(getWavAmplitudes(temp));
+				musicPoints = processAmplitudes(getWavAmplitudes(temp, BUFFER_SIZE));
 				temp.delete();//Remove temp file
 				this.playing = true;
 				int nBytesRead = 0;
@@ -218,7 +218,7 @@ class MusicPlayer {
 		this.playing = false;
 	}
 
-	private int[] getWavAmplitudes(File file) {
+	private int[] getWavAmplitudes(File file, int BUFFER_SIZE) {
 		//Get Audio input stream
 		try (AudioInputStream input = AudioSystem.getAudioInputStream(file)) {
 			AudioFormat baseFormat = input.getFormat();
@@ -233,7 +233,7 @@ class MusicPlayer {
 
 			//Get the PCM Decoded Audio Input Stream
 			try (AudioInputStream pcmDecodedInput = AudioSystem.getAudioInputStream(decodedFormat, input)) {
-				final int BUFFER_SIZE = 4096; //this is actually bytes
+			//	final int BUFFER_SIZE = 4096.; //this is actually bytes
 
 				//Create a buffer
 				byte[] buffer = new byte[BUFFER_SIZE];
