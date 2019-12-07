@@ -26,10 +26,10 @@ public class TopMenu extends JMenuBar {
 		JMenuItem tree = new JMenuItem("Tree");
 		visualizers.add(tree);
 
-		thinCircles.addActionListener(e -> mainFrame.visType = MainFrame.VisType.ThinCircle);
-		thickCircles.addActionListener(e -> mainFrame.visType = MainFrame.VisType.ThickCircle);
-		lines1.addActionListener(e -> mainFrame.visType = MainFrame.VisType.Lines);
-		tree.addActionListener(e -> mainFrame.visType = MainFrame.VisType.Tree);
+		thinCircles.addActionListener(e -> mainFrame.changeVisualizer(MainFrame.VisType.ThinCircle));
+		thickCircles.addActionListener(e -> mainFrame.changeVisualizer(MainFrame.VisType.ThickCircle));
+		lines1.addActionListener(e -> mainFrame.changeVisualizer(MainFrame.VisType.Lines));
+		tree.addActionListener(e -> mainFrame.changeVisualizer(MainFrame.VisType.Tree));
 
 
 	}

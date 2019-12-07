@@ -5,6 +5,8 @@ import javax.swing.*;
 /**
  * App
  *
+ * This is the class that invokes the mainFrame(JFrame)
+ *
  * @author Aric Hurkman
  * date: 11.19.2019
  * <p>
@@ -17,12 +19,7 @@ public class App {
 	}
 
 	private App() {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				new MainFrame();
-			}
-		});
-
-
+		//Invoking MainFrame
+		SwingUtilities.invokeLater(() -> new MainFrame());
 	}
 }

@@ -6,7 +6,9 @@ import javazoom.jl.decoder.JavaLayerException;
 import javax.sound.sampled.*;
 import javax.sound.sampled.AudioFormat.Encoding;
 import javax.swing.*;
-import java.io.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Music Player
@@ -22,12 +24,28 @@ import java.io.*;
  */
 class MusicPlayer {
 
-	JFileChooser chooser = new JFileChooser();
-	private static final double WAVEFORM_HEIGHT_COEFFICIENT = 1.3;
+
+	//File Chooser
+	JFileChooser chooser;
+	//File Filter
+	FileNameExtensionFilter filter;
+	//The coefficient to multiply the wave height by
+	private static final double WAVE_HEIGHT_COEFFICIENT = 1.3;
+	//If Playing Music
 	boolean playing = false;
-	boolean runningLive = false;
-	private Thread thread;
+	//Thread for music
+	private Thread musicThread;
+	//Points of amplitudes of music
 	float[] musicPoints;
+
+	MusicPlayer() {
+		chooser = new JFileChooser();
+		filter = new FileNameExtensionFilter("Music", "mp3");
+		//Sets Only File can be chosen
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		//Set file filter to only open mp3
+		chooser.setFileFilter(filter);
+	}
 
 	/**
 	 * RunPlay invoked from ButtonPanel via the PlayListener interface
@@ -46,15 +64,15 @@ class MusicPlayer {
 	 */
 	private void playFile() {
 
-		if (thread != null) if (thread.isAlive()) {
+		if (musicThread != null) if (musicThread.isAlive()) {
 			System.out.println("Error Thread is Alive Already");
 			try {
-				thread.join();
+				musicThread.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		thread = new Thread(() -> {
+		musicThread = new Thread(() -> {
 			System.out.println("Starting Music Player Thread");
 
 			String fileString = openFile();
@@ -67,22 +85,19 @@ class MusicPlayer {
 			}
 			File temp = new File(file.getPath().split("\\.")[0].concat(".wav"));
 			try {
+				//Converting the mps to wav
 				Converter converter = new Converter();
 				converter.convert(file.getAbsolutePath(), temp.getAbsolutePath());
-
-
+				//getting the stream input for the converted wav
 				AudioInputStream input = AudioSystem.getAudioInputStream(temp);
 				AudioFormat baseFormat = input.getFormat();
-
 				DataLine.Info info = new DataLine.Info(SourceDataLine.class, baseFormat);
-
 				SourceDataLine sourceLine = (SourceDataLine) AudioSystem.getLine(info);
-
-
 				final int BUFFER_SIZE = sourceLine.getBufferSize();
 				sourceLine.open(baseFormat);
 				sourceLine.start();
 
+				//converts the wav file to music points that can be drawn accessed form Visualiser Class
 				musicPoints = processAmplitudes(getWavAmplitudes(temp));
 				temp.delete();//Remove temp file
 				playing = true;
@@ -100,7 +115,6 @@ class MusicPlayer {
 						@SuppressWarnings("unused") int nBytesWritten = sourceLine.write(abData, 0, nBytesRead);
 
 					}
-
 
 					if (!playing) {
 
@@ -122,7 +136,7 @@ class MusicPlayer {
 			}
 
 		});
-		thread.start();
+		musicThread.start();
 	}
 
 	/**
@@ -178,7 +192,7 @@ class MusicPlayer {
 					for (int i = 0; i < buffer.length - 1; i += 2) {
 
 						//Calculate the value 8 bits Long
-						arrayCellValue = (int) (((((buffer[i + 1] * 256) | (buffer[i] & 0xff)) * 65536) / 32767) * WAVEFORM_HEIGHT_COEFFICIENT);
+						arrayCellValue = (int) (((((buffer[i + 1] * 256) | (buffer[i] & 0xff)) * 65536) / 32767) * WAVE_HEIGHT_COEFFICIENT);
 
 
 						if (currentSampleCounter != samplesPerPixel) {
@@ -245,16 +259,24 @@ class MusicPlayer {
 	 */
 	private String openFile() {
 		System.out.println("Trying to open file");
+		//Gets the File System
 		chooser.getFileSystemView();
+		//default file string is blank for file check
 		String file = "";
+		//if correct file is selected
 		int r = chooser.showOpenDialog(null);
 		if (r == JFileChooser.APPROVE_OPTION) {
+			//if correct file type and file is chosen then set the string
 			file = chooser.getSelectedFile().getAbsolutePath();
-
 			System.out.println("File: " + file);
-		} else {
+		} else if(r == JFileChooser.CANCEL_OPTION) {
 			System.out.println("Canceled");
 		}
+		else{
+			//Should never get here
+			System.out.println("Error: File Chosen Is Invalid");
+		}
+		//return the current file value either blank string or the absolute path of file
 		return file;
 	}
 }

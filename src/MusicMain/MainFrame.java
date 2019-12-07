@@ -11,6 +11,7 @@ import java.awt.*;
  * Using Δt in Runnable thread for rendering smooth graphics.
  */
 class MainFrame {
+
 	//Enum Visual Type being displayed
 	enum VisType {
 		ThinCircle, ThickCircle, Lines, Tree
@@ -66,8 +67,8 @@ class MainFrame {
 			}
 		});
 
-		frame.setVisible(true);
 		frame.pack();
+		frame.setVisible(true);
 		//Starting Thread and calculate
 		start();
 	}
@@ -110,11 +111,21 @@ class MainFrame {
 	 * Joins mainThread and sets running to false
 	 */
 	public synchronized void stop() {
-		try {
-			visualizerThread.join();
-			running = false;
-		} catch (Exception e) {
-			e.printStackTrace();
+		running = false;
+	}
+
+	/**
+	 * @param newVisType takes in the visual type to be changed
+	 */
+	void changeVisualizer(VisType newVisType) {
+		if(musicPlayer.playing){
+			System.out.println("Error: Please Stop Music To Chang Visualization");
+		}else {
+			if (visType == newVisType) return;
+			visType = newVisType;
+			System.out.println("Changing Visual TO: " + newVisType);
 		}
+
+
 	}
 }

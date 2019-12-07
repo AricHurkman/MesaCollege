@@ -27,18 +27,18 @@ public class Visualizer {
 	private int pointIndex = 0;
 
 	//ref to current world
-	private World w;
+	World w;
 	//Random used to randomize scale, position and direction
 	private Random r = new Random();
 
 	//Turtle for thinCircle visualization
-	private Turtle thinCircle;
+	Turtle thinCircle;
 	//Turtle array for thickCircle visualization. 10 per call
-	private Turtle[] thickCircles = new Turtle[10];
+	Turtle[] thickCircles = new Turtle[10];
 	//Turtle for lines visualization set to current width per call
-	private lines[] lines = new lines[width];
+	lines[] lines = new lines[width];
 	//Turtle for trees visualization 5 per call
-	private Turtle[] trees = new Turtle[3];
+	Turtle[] trees = new Turtle[3];
 
 	//Max Scale set per visual
 	private float scaleMax = 0.0f;
@@ -73,25 +73,29 @@ public class Visualizer {
 	void Render() {
 
 		if (mainFrame == null) return;
-		if (mainFrame.musicPlayer == null) return;
 		if (w == null) {
 			w = new World(width, height, frame);
+
 		}
+		if (mainFrame.musicPlayer.playing) {
+			//Calls the current Visual type when song is playing
+			switch (mainFrame.visType) {
+				case ThinCircle:
+					drawSingleBandCircle();
+					break;
+				case ThickCircle:
+					drawThinkBandCircle();
+					break;
+				case Lines:
+					drawLines();
+					break;
+				case Tree:
+					tree();
+					break;
 
-
-		switch (mainFrame.visType) {
-			case ThinCircle:
-				drawSingleBandCircle();
-				break;
-			case ThickCircle:
-				drawThinkBandCircle();
-				break;
-			case Lines:
-				drawLines();
-				break;
-			case Tree:
-				tree();
-				break;
+			}
+		} else {
+			frame.repaint();
 		}
 	}
 
@@ -100,7 +104,7 @@ public class Visualizer {
 	 * Draw single circles
 	 */
 	private void drawSingleBandCircle() {
-		if (!mainFrame.musicPlayer.playing) return;
+
 		if (thinCircle == null) {
 			thinCircle = new Turtle(width / 2, height / 2, w);
 			thinCircle.hide();
@@ -115,7 +119,7 @@ public class Visualizer {
 				int x = (int) (((mainFrame.musicPlayer.musicPoints[pointIndex] / scaleFactor) * width / 100));
 				int y = (int) (((mainFrame.musicPlayer.musicPoints[pointIndex] / scaleFactor) * height / 100));
 				//System.out.println("x: " + x + " y: " + y);
-				int size = (int) (scaleFactor * r.nextInt(70));
+				int size = (int) (scaleFactor * r.nextInt(20));
 				//System.out.println("Size: " + size);
 				thinCircle.drawShapes(1, size, 60, thinCircle.getXPos() + x, thinCircle.getYPos() + y, 0, 0, setRandomColor());
 
@@ -129,10 +133,9 @@ public class Visualizer {
 	}
 
 	/**
-	 *
+	 * Draw Think Circles
 	 */
 	private void drawThinkBandCircle() {
-
 		for (int i = 0; i < thickCircles.length; i++) {
 			if (thickCircles[i] == null) {
 				thickCircles[i] = new Turtle(width / 2, height / 2, w);
@@ -149,7 +152,7 @@ public class Visualizer {
 					int x = (int) (((mainFrame.musicPlayer.musicPoints[pointIndex] / scaleFactor) * width / 100));
 					int y = (int) (((mainFrame.musicPlayer.musicPoints[pointIndex] / scaleFactor) * height / 100));
 					//System.out.println("x: " + x + " y: " + y);
-					int size = (int) (scaleFactor * r.nextInt(70));
+					int size = (int) (scaleFactor * r.nextInt(20));
 					//System.out.println("Size: " + size);
 					thickCircle.drawShapes(5, size, 60, thickCircle.getXPos() + x, thickCircle.getYPos() + y, 0, 0, setRandomColor());
 				}
@@ -167,12 +170,11 @@ public class Visualizer {
 	}
 
 	/**
-	 *
+	 * Draw Lines
 	 */
 	int x = 0;
 
 	private void drawLines() {
-		if (!mainFrame.musicPlayer.playing) return;
 		if (lines.length != mainFrame.musicPlayer.musicPoints.length) {
 			lines = new lines[mainFrame.musicPlayer.musicPoints.length];
 		}
@@ -215,7 +217,7 @@ public class Visualizer {
 	}
 
 	/**
-	 *
+	 * Draw Tree
 	 */
 	private void tree() {
 		if (!mainFrame.musicPlayer.playing) return;
@@ -226,30 +228,31 @@ public class Visualizer {
 
 			}
 		}
+		if (trees != null) {
+			int treeIndex;
+			for (treeIndex = 0; treeIndex < trees.length; treeIndex++) {
+				float point = mainFrame.musicPlayer.musicPoints[pointIndex] * 60;
 
-		int treeIndex;
-		for (treeIndex = 0; treeIndex < trees.length; treeIndex++) {
-			float point = mainFrame.musicPlayer.musicPoints[pointIndex] * 60;
+				if (trees[treeIndex] != null) {
+					trees[treeIndex].setPenColor(setRandomColor());
+					int randDir = r.nextInt(2);
+					int randPos = r.nextInt(60);
 
-			if (trees[treeIndex] != null) {
-				trees[treeIndex].setPenColor(setRandomColor());
-				int randDir = r.nextInt(2);
-				int randPos = r.nextInt(60);
+					trees[treeIndex].penUp();
+					if (randDir == 0) {
 
-				trees[treeIndex].penUp();
-				if (randDir == 0) {
-
-					trees[treeIndex].moveTo(trees[treeIndex].getXPos() + randPos, trees[treeIndex].getYPos());
-				} else {
-					trees[treeIndex].moveTo(trees[treeIndex].getXPos() - randPos, trees[treeIndex].getYPos());
+						trees[treeIndex].moveTo(trees[treeIndex].getXPos() + randPos, trees[treeIndex].getYPos());
+					} else {
+						trees[treeIndex].moveTo(trees[treeIndex].getXPos() - randPos, trees[treeIndex].getYPos());
+					}
+					trees[treeIndex].penDown();
+					Branch(trees[treeIndex], point, 0, 10);
 				}
-				trees[treeIndex].penDown();
-				Branch(trees[treeIndex], point, 0, 10);
-			}
-			if (pointIndex >= mainFrame.musicPlayer.musicPoints.length - 1) {
-				pointIndex = 0;
-			} else {
-				pointIndex++;
+				if (pointIndex >= mainFrame.musicPlayer.musicPoints.length - 1) {
+					pointIndex = 0;
+				} else {
+					pointIndex++;
+				}
 			}
 		}
 
@@ -323,8 +326,12 @@ public class Visualizer {
 		return color;
 	}
 
+
 }
 
+/**
+ * lines is a container class for lines visualization
+ */
 class lines {
 	int x;
 	int y;
