@@ -137,6 +137,7 @@ public class Picture extends SimplePicture {
 		Pixel[] pixArray = this.getPixels();
 		Pixel pixel = null;
 
+
 		int redValue = 0;
 		int greenValue = 0;
 		int blueValue = 0;
@@ -278,6 +279,7 @@ public class Picture extends SimplePicture {
 		Pixel[] pixels = this.getPixels();
 		for (int i = 0; i < pixels.length; i += 2) {
 			pixels[i].setColor(color);
+
 		}
 	}
 
@@ -309,6 +311,8 @@ public class Picture extends SimplePicture {
 		else if (value >= max) return max;
 		else return value;
 	}
+
+
 	/*
 	 * End Code Created By Aric Hurkman
 	 */

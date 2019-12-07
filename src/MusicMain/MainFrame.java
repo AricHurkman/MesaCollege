@@ -10,23 +10,25 @@ import java.awt.*;
  * MainFrame.js is the main Jframe Sets the background frame and adds all subframes to this frame
  * Using Δt in Runnable thread for rendering smooth graphics.
  */
-class MainFrame implements Runnable {
-
-
+class MainFrame {
+	//Enum Visual Type being displayed
 	enum VisType {
 		ThinCircle, ThickCircle, Lines, Tree
 	}
 
+	//Ref to current visual type
 	VisType visType = VisType.ThinCircle;
-
-
+	//This JFrame
 	JFrame frame = new JFrame();
-
+	//ref to Visualizer
+	Visualizer musicVisualizer = new Visualizer(this);
+	//ref to music player
 	MusicPlayer musicPlayer = new MusicPlayer();
-
-	CanvasVisualizer musicVisualizer = new CanvasVisualizer();
+	//ref to top menu
 	TopMenu topMenu;
-	private Thread mainThread;
+	//Thread for visualizer
+	private Thread visualizerThread;
+	//if running thread then we calculate Δt
 	private boolean running;
 
 	/**
@@ -35,20 +37,22 @@ class MainFrame implements Runnable {
 	 * Anonymous PlayListener
 	 */
 	MainFrame() {
+		//Frame
 		frame.setTitle("Music Player");
 		frame.setLayout(new BorderLayout());
 		Dimension d = new Dimension(600, 600);
 		frame.setSize(d);
-
 		frame.setMaximumSize(d);
 		frame.setMinimumSize(d);
 		frame.setLocationRelativeTo(null);
-
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		ButtonPanel buttonPanel = new ButtonPanel();
+		//Top Menu
 		topMenu = new TopMenu(this);
 		frame.add(topMenu, BorderLayout.NORTH);
+		//Button Panel
+		ButtonPanel buttonPanel = new ButtonPanel();
 		frame.add(buttonPanel, BorderLayout.SOUTH);
+		//Visualizer
 		musicVisualizer.setFrame(frame);
 		//Button Panel set interface
 		buttonPanel.setPlayerListener(new PlayerListener() {
@@ -61,19 +65,44 @@ class MainFrame implements Runnable {
 				musicPlayer.stop();
 			}
 		});
+
 		frame.setVisible(true);
 		frame.pack();
+		//Starting Thread and calculate
 		start();
 	}
 
 	/**
 	 * synchronized Start
 	 * Sets mainThread and running to true
+	 * Δt
 	 */
 	private synchronized void start() {
-		mainThread = new Thread(this);
+		visualizerThread = new Thread(() -> {
+			long lastTime = System.nanoTime();
+			final double tickLimit = 60;
+			double nanoSec = 1000000000 / tickLimit;
+			double delta = 0;
+			while (running) {
+				long now = System.nanoTime();
+				delta += (now - lastTime) / nanoSec;
+				if (delta >= 1) {
+					deltaTick();
+					delta--;
+				}
+
+			}
+		});
 		running = true;
-		mainThread.start();
+		visualizerThread.start();
+	}
+
+	/**
+	 * deltaTick()
+	 * current delta tick
+	 */
+	private void deltaTick() {
+		musicVisualizer.Render();
 	}
 
 	/**
@@ -82,58 +111,10 @@ class MainFrame implements Runnable {
 	 */
 	public synchronized void stop() {
 		try {
-			mainThread.join();
+			visualizerThread.join();
 			running = false;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
-	@Override
-	public void run() {
-
-		/**
-		 * Start of Δt Thread
-		 *
-		 * Code Below is based off ofa tutorial on https://gamedev.stackexchange.com
-		 * runs code based on delta-time (Δt) ticks and not CPU Tick
-		 * using this to smooth out animations
-		 * While Running set in start() and mainThread
-		 * Running False set in stop()
-		 *
-		 */
-		long lastTime = System.nanoTime();
-		double amountOfTicks = 120;
-		final double nanoSeconds = 1000000000 / amountOfTicks;
-		double delta_time = 0;
-		long timer = System.currentTimeMillis();
-		int frames = 0;
-		while (running) {
-
-			long timeSinceStart = System.nanoTime();
-			delta_time += (timeSinceStart - lastTime) / nanoSeconds;
-			lastTime = timeSinceStart;
-			while (delta_time >= 1) {
-
-				frames++;
-				musicVisualizer.Render(musicPlayer, visType);
-				delta_time--;
-			}
-
-
-			if (System.currentTimeMillis() - timer > 1000) {
-				timer += 1000;
-
-				//System.out.println("FPS: " + frames);
-				frames = 0;
-			}
-
-
-		}
-		stop();
-		/**
-		 * End Of Δt Thread
-		 */
-	}
 }
-

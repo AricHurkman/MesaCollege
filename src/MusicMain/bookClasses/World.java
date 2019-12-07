@@ -145,6 +145,7 @@ public class World extends JComponent implements ModelDisplay {
 		frame.pack();
 		frame.setVisible(true);
 
+
 	}
 
 

@@ -8,9 +8,7 @@ import java.awt.event.ActionListener;
 /**
  * @author Aric Hurkman
  * Date: 11.21.2019
- *
  * Button Panel groups the Play and Stop Buttons for music playing
- *
  */
 public class ButtonPanel extends JPanel implements ActionListener {
 
@@ -30,18 +28,16 @@ public class ButtonPanel extends JPanel implements ActionListener {
 		stop.addActionListener(this);
 		add(play);
 		add(stop);
-
 	}
 
 	/**
 	 * Set the button listener for play and stop buttons
 	 *
-	 * @param playerListener
+	 * @param playerListener pass through for play listener (play and stop button)
 	 */
 	void setPlayerListener(PlayerListener playerListener) {
 		this.playerListener = playerListener;
 	}
-
 
 	/**
 	 * ActionListener for play and stop buttons
@@ -57,7 +53,7 @@ public class ButtonPanel extends JPanel implements ActionListener {
 			}
 		} else if (clicked == stop) {
 
-			System.out.println("Pressed Stop");;
+			System.out.println("Pressed Stop");
 			if (playerListener != null) {
 				playerListener.clickedStop();
 			}
