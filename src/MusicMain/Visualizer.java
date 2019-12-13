@@ -285,7 +285,6 @@ public class Visualizer {
 		t.forward((int) -x2);
 	}
 
-
 	/**
 	 * @return the random color set
 	 */

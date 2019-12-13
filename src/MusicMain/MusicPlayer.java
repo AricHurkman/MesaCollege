@@ -89,23 +89,28 @@ class MusicPlayer {
 				Converter converter = new Converter();
 				converter.convert(file.getAbsolutePath(), temp.getAbsolutePath());
 				//getting the stream input for the converted wav
-				AudioInputStream input = AudioSystem.getAudioInputStream(temp);
-				AudioFormat baseFormat = input.getFormat();
+				AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(temp);
+				//Obtains the audio format of the sound data in this audio input stream.
+				AudioFormat baseFormat = audioInputStream.getFormat();
 				DataLine.Info info = new DataLine.Info(SourceDataLine.class, baseFormat);
 				SourceDataLine sourceLine = (SourceDataLine) AudioSystem.getLine(info);
 				final int BUFFER_SIZE = sourceLine.getBufferSize();
 				sourceLine.open(baseFormat);
 				sourceLine.start();
 
-				//converts the wav file to music points that can be drawn accessed form Visualiser Class
+				//converts the temp wav file to music points that can be drawn accessed form Visualiser Class
 				musicPoints = processAmplitudes(getWavAmplitudes(temp));
+
 				temp.delete();//Remove temp file
+
+				//staring to playing the Visual and Music
 				playing = true;
+
 				int nBytesRead = 0;
 				byte[] abData = new byte[BUFFER_SIZE];
 				while (nBytesRead != -1) {
 					try {
-						nBytesRead = input.read(abData, 0, abData.length);
+						nBytesRead = audioInputStream.read(abData, 0, abData.length);
 
 
 					} catch (IOException e) {
